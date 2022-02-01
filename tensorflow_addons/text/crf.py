@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import warnings
 
 import numpy as np
 import tensorflow as tf
 
 from tensorflow_addons.utils.types import TensorLike
 from typeguard import typechecked
-from typing import Optional
+from typing import Optional, Tuple
 
 # TODO: Wrap functions in @tf.function once
 # https://github.com/tensorflow/tensorflow/issues/29075 is resolved
@@ -205,7 +206,7 @@ def crf_log_likelihood(
     tag_indices: TensorLike,
     sequence_lengths: TensorLike,
     transition_params: Optional[TensorLike] = None,
-) -> tf.Tensor:
+) -> Tuple[tf.Tensor, tf.Tensor]:
     """Computes the log-likelihood of tag sequences in a CRF.
 
     Args:
@@ -489,7 +490,11 @@ def crf_decode_forward(
     mask = tf.sequence_mask(sequence_lengths, tf.shape(inputs)[1])
     crf_fwd_cell = CrfDecodeForwardRnnCell(transition_params, dtype=inputs.dtype)
     crf_fwd_layer = tf.keras.layers.RNN(
-        crf_fwd_cell, return_sequences=True, return_state=True, dtype=inputs.dtype
+        crf_fwd_cell,
+        return_sequences=True,
+        return_state=True,
+        dtype=inputs.dtype,
+        zero_output_for_mask=True,  # See: https://github.com/tensorflow/addons/issues/2639
     )
     return crf_fwd_layer(inputs, state, mask=mask)
 
@@ -534,6 +539,11 @@ def crf_decode(
                   Contains the highest scoring tag indices.
       best_score: A [batch_size] vector, containing the score of `decode_tags`.
     """
+    if tf.__version__[:3] == "2.4":
+        warnings.warn(
+            "CRF Decoding does not work with KerasTensors in TF2.4. The bug has since been fixed in tensorflow/tensorflow##45534"
+        )
+
     sequence_length = tf.cast(sequence_length, dtype=tf.int32)
 
     # If max_seq_len is 1, we skip the algorithm and simply return the

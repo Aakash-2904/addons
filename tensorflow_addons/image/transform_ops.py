@@ -35,10 +35,11 @@ _IMAGE_DTYPES = {
 def transform(
     images: TensorLike,
     transforms: TensorLike,
-    interpolation: str = "NEAREST",
-    fill_mode: str = "CONSTANT",
+    interpolation: str = "nearest",
+    fill_mode: str = "constant",
     output_shape: Optional[list] = None,
     name: Optional[str] = None,
+    fill_value: TensorLike = 0.0,
 ) -> tf.Tensor:
     """Applies the given transform(s) to the image(s).
 
@@ -55,9 +56,9 @@ def transform(
         the transform mapping input points to output points. Note that
         gradients are not backpropagated into transformation parameters.
       interpolation: Interpolation mode.
-        Supported values: "NEAREST", "BILINEAR".
+        Supported values: "nearest", "bilinear".
       fill_mode: Points outside the boundaries of the input are filled according
-        to the given mode (one of `{'constant', 'reflect', 'wrap'}`).
+        to the given mode (one of `{'constant', 'reflect', 'wrap', 'nearest'}`).
         - *reflect*: `(d c b a | a b c d | d c b a)`
           The input is extended by reflecting about the edge of the last pixel.
         - *constant*: `(k k k k | a b c d | k k k k)`
@@ -65,6 +66,10 @@ def transform(
           same constant value k = 0.
         - *wrap*: `(a b c d | a b c d | a b c d)`
           The input is extended by wrapping around to the opposite edge.
+        - *nearest*: `(a a a a | a b c d | d d d d)`
+          The input is extended by the nearest pixel.
+      fill_value: a float represents the value to be filled outside the
+        boundaries when `fill_mode` is "constant".
       output_shape: Output dimesion after the transform, [height, width].
         If None, output is the same size as input image.
 
@@ -115,13 +120,16 @@ def transform(
                 % len(transforms.get_shape())
             )
 
-        # TODO(WindQAQ): Support "nearest" `fill_mode` and `fill_value` in TF2.4.
-        output = tf.raw_ops.ImageProjectiveTransformV2(
+        fill_value = tf.convert_to_tensor(
+            fill_value, dtype=tf.float32, name="fill_value"
+        )
+        output = tf.raw_ops.ImageProjectiveTransformV3(
             images=images,
             transforms=transforms,
             output_shape=output_shape,
             interpolation=interpolation.upper(),
             fill_mode=fill_mode.upper(),
+            fill_value=fill_value,
         )
         return img_utils.from_4D_image(output, original_ndims)
 
@@ -279,9 +287,10 @@ def angles_to_projective_transforms(
 def rotate(
     images: TensorLike,
     angles: TensorLike,
-    interpolation: str = "NEAREST",
-    fill_mode: str = "CONSTANT",
+    interpolation: str = "nearest",
+    fill_mode: str = "constant",
     name: Optional[str] = None,
+    fill_value: TensorLike = 0.0,
 ) -> tf.Tensor:
     """Rotate image(s) counterclockwise by the passed angle(s) in radians.
 
@@ -293,10 +302,10 @@ def rotate(
       angles: A scalar angle to rotate all images by, or (if `images` has rank 4)
         a vector of length num_images, with an angle for each image in the
         batch.
-      interpolation: Interpolation mode. Supported values: "NEAREST",
-        "BILINEAR".
+      interpolation: Interpolation mode. Supported values: "nearest",
+        "bilinear".
       fill_mode: Points outside the boundaries of the input are filled according
-        to the given mode (one of `{'constant', 'reflect', 'wrap'}`).
+        to the given mode (one of `{'constant', 'reflect', 'wrap', 'nearest'}`).
         - *reflect*: `(d c b a | a b c d | d c b a)`
           The input is extended by reflecting about the edge of the last pixel.
         - *constant*: `(k k k k | a b c d | k k k k)`
@@ -304,6 +313,10 @@ def rotate(
           same constant value k = 0.
         - *wrap*: `(a b c d | a b c d | a b c d)`
           The input is extended by wrapping around to the opposite edge.
+        - *nearest*: `(a a a a | a b c d | d d d d)`
+          The input is extended by the nearest pixel.
+      fill_value: a float represents the value to be filled outside the
+        boundaries when `fill_mode` is "constant".
       name: The name of the op.
 
     Returns:
@@ -327,6 +340,7 @@ def rotate(
             angles_to_projective_transforms(angles, image_height, image_width),
             interpolation=interpolation,
             fill_mode=fill_mode,
+            fill_value=fill_value,
         )
         return img_utils.from_4D_image(output, original_ndims)
 

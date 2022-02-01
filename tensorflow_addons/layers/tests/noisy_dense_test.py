@@ -90,12 +90,40 @@ def test_noisy_dense_constraints():
 
 
 @pytest.mark.usefixtures("maybe_run_functions_eagerly")
-def test_noisy_dense_automatic_reset_noise():
+def test_noisy_dense_reset_noise():
     inputs = tf.convert_to_tensor(np.random.randint(low=0, high=7, size=(2, 2)))
     layer = NoisyDense(5, name="noise_dense_auto_reset_noise")
     layer(inputs)
-    initial_eps_kernel = layer.eps_kernel
-    initial_eps_bias = layer.eps_bias
+    initial_eps_kernel = tf.identity(layer.eps_kernel)
+    initial_eps_bias = tf.identity(layer.eps_bias)
+    layer.reset_noise()
+    layer(inputs)
+    new_eps_kernel = layer.eps_kernel
+    new_eps_bias = layer.eps_bias
+    np.testing.assert_raises(
+        AssertionError,
+        np.testing.assert_array_equal,
+        initial_eps_kernel,
+        new_eps_kernel,
+    )
+    np.testing.assert_raises(
+        AssertionError,
+        np.testing.assert_array_equal,
+        initial_eps_bias,
+        new_eps_bias,
+    )
+
+
+@pytest.mark.usefixtures("maybe_run_functions_eagerly")
+def test_noisy_dense_reset_noise_independent():
+    inputs = tf.convert_to_tensor(np.random.randint(low=0, high=7, size=(2, 2)))
+    layer = NoisyDense(
+        5, use_factorised=False, name="noise_dense_auto_reset_noise_independent"
+    )
+    layer(inputs)
+    initial_eps_kernel = tf.identity(layer.eps_kernel)
+    initial_eps_bias = tf.identity(layer.eps_bias)
+    layer.reset_noise()
     layer(inputs)
     new_eps_kernel = layer.eps_kernel
     new_eps_bias = layer.eps_bias
@@ -118,9 +146,10 @@ def test_noisy_dense_remove_noise():
     inputs = tf.convert_to_tensor(np.random.randint(low=0, high=7, size=(2, 2)))
     layer = NoisyDense(5, name="noise_dense_manual_reset_noise")
     layer(inputs)
-    initial_eps_kernel = layer.eps_kernel
-    initial_eps_bias = layer.eps_bias
-    layer(inputs, reset_noise=False, remove_noise=True)
+    initial_eps_kernel = tf.identity(layer.eps_kernel)
+    initial_eps_bias = tf.identity(layer.eps_bias)
+    layer.remove_noise()
+    layer(inputs)
     new_eps_kernel = layer.eps_kernel
     new_eps_bias = layer.eps_bias
     kernel_zeros = tf.zeros(initial_eps_kernel.shape, dtype=initial_eps_kernel.dtype)

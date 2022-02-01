@@ -31,7 +31,7 @@ class FBetaScore(tf.keras.metrics.Metric):
     both multi-class and multi-label classification.
 
     $$
-    F_{\beta} = (1 + \beta^2) * \frac{\textrm{precision} * \textrm{precision}}{(\beta^2 \cdot \textrm{precision}) + \textrm{recall}}
+    F_{\beta} = (1 + \beta^2) * \frac{\textrm{precision} * \textrm{recall}}{(\beta^2 \cdot \textrm{precision}) + \textrm{recall}}
     $$
 
     Args:
@@ -59,7 +59,8 @@ class FBetaScore(tf.keras.metrics.Metric):
         to 0.
 
     `average` parameter behavior:
-        None: Scores for each class are returned
+
+        None: Scores for each class are returned.
 
         micro: True positivies, false positives and
             false negatives are computed globally.
@@ -202,9 +203,15 @@ class FBetaScore(tf.keras.metrics.Metric):
         base_config = super().get_config()
         return {**base_config, **config}
 
-    def reset_states(self):
+    def reset_state(self):
         reset_value = tf.zeros(self.init_shape, dtype=self.dtype)
         K.batch_set_value([(v, reset_value) for v in self.variables])
+
+    def reset_states(self):
+        # Backwards compatibility alias of `reset_state`. New classes should
+        # only implement `reset_state`.
+        # Required in Tensorflow < 2.5.0
+        return self.reset_state()
 
 
 @tf.keras.utils.register_keras_serializable(package="Addons")
