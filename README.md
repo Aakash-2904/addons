@@ -21,7 +21,7 @@
 well-established API patterns, but implement new functionality
 not available in core TensorFlow. TensorFlow natively supports
 a large number of operators, layers, metrics, losses, and optimizers.
-However, in a fast moving field like ML, there are many interesting new
+However, in a fast-moving field like ML, there are many interesting new
 developments that cannot be integrated into core TensorFlow
 (because their broad applicability is not yet clear, or it is mostly
  used by a smaller subset of the community).
@@ -54,7 +54,7 @@ pip install tensorflow-addons
 ```
 
 To ensure you have a version of TensorFlow that is compatible with TensorFlow Addons, 
-you can specify the `tensorflow` extra requirement during install:
+you can specify the `tensorflow` extra requirement during installation:
 
 ```
 pip install tensorflow-addons[tensorflow]
@@ -70,8 +70,8 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 ```
 
-### Python Op Compatility
-TensorFlow Addons is actively working towards forward compatibility with TensorFlow 2.x. 
+### Python Op Compatibility
+TensorFlow Addons is actively working towards forwarding  compatibility with TensorFlow 2.x. 
 However, there are still a few private API uses within the repository so at the moment 
 we can only guarantee compatibility with the TensorFlow versions which it was tested against. 
 Warnings will be emitted when importing `tensorflow_addons` if your TensorFlow version does not match 
@@ -136,7 +136,7 @@ pip install tfa-nightly
 ```
 
 #### Installing from Source
-You can also install from source. This requires the [Bazel](
+You can also install from the source. This requires the [Bazel](
 https://bazel.build/) build system (version >= 1.0.0).
 
 ##### CPU Custom Ops
@@ -144,7 +144,7 @@ https://bazel.build/) build system (version >= 1.0.0).
 git clone https://github.com/tensorflow/addons.git
 cd addons
 
-# This script links project with TensorFlow dependency
+# This script links the project with TensorFlow dependency
 python3 ./configure.py
 
 bazel build build_pip_pkg
@@ -166,7 +166,7 @@ export TF_CUDNN_VERSION="8"
 export CUDA_TOOLKIT_PATH="/usr/local/cuda"
 export CUDNN_INSTALL_PATH="/usr/lib/x86_64-linux-gnu"
 
-# This script links project with TensorFlow dependency
+# This script links the project with TensorFlow dependency
 python3 ./configure.py
 
 bazel build build_pip_pkg
@@ -227,7 +227,7 @@ that they can be maintained by community users who have expertise, and a vested
 interest in that component. We heavily encourage users to submit sign up to maintain a 
 submodule by submitting your username to the [CODEOWNERS](.github/CODEOWNERS) file.
 
-Full write access will only be granted after substantial contribution 
+Full write access will only be granted after a substantial contribution 
 has been made in order to limit the number of users with write permission. 
 Contributions can come in the form of issue closings, bug fixes, documentation, 
 new code, or optimizing existing code. Submodule maintainership can be granted 
@@ -264,7 +264,7 @@ The period between an API being marked as deprecated and being deleted will be
 90 days. The rationale being:
 
 1. In the event that TensorFlow Addons releases monthly, there will be 2-3 
-releases before an API is deleted. The release notes could give user enough 
+releases before an API is deleted. The release notes could give the user enough 
 warning.
 
 2. 90 days gives maintainers ample time to fix their code.
@@ -283,13 +283,13 @@ Do you want to contribute but are not sure of what? Here are a few suggestions:
   examples.
 2. Improve the docstrings. The docstrings are fetched and then displayed in the documentation.
   Do a change and hundreds of developers will see it and benefit from it. Maintainers are often focused 
-  on making APIs, fixing bugs and other code related changes. The documentation will never 
+  on making APIs, fixing bugs, and other code-related changes. The documentation will never 
   be loved enough!
 3. Solve an [existing issue](https://github.com/tensorflow/addons/issues).
   These range from low-level software bugs to higher-level design problems.
   Check out the label [help wanted](https://github.com/tensorflow/addons/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22). If you're a new contributor, the label [good first issue](https://github.com/tensorflow/addons/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) can be a good place to start.
 4. Review a pull request. So you're not a software engineer but you know a lot
-  about a certain field a research? That's awesome and we need your help! Many people 
+  about a certain field of research? That's awesome and we need your help! Many people 
   are submitting pull requests to add layers/optimizers/functions taken from recent
   papers. Since TensorFlow Addons maintainers are not specialized in everything,
   you can imagine how hard it is to review. It takes very long to read the paper,
